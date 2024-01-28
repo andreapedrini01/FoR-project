@@ -1,8 +1,8 @@
 """!
 @file RegionOfInterest.py
-@author Giulio Zamberlan (giulio.zamberlan@studenti.unitn.it)
+@author Federico Buzzini (federico.buzzini@studenti.unitn.it)
 @brief Defines the class RegionOfInterest.py
-@date 2023-02-17
+@date 2024-01-28
 """
 # ---------------------- IMPORT ----------------------
 import cv2

@@ -1,8 +1,8 @@
 """!
 @file LegoDetect.py
-@author Anh Tu Duong (anhtu.duong@studenti.unitn.it)
+@author Federico Buzzini (federico.buzzini@studenti.unitn.it)
 @brief Defines the class Lego and LegoDetect.
-@date 2023-02-17
+@date 2024-01-28
 """
 # ---------------------- IMPORT ----------------------
 from pathlib import Path
@@ -18,7 +18,7 @@ from RegionOfInterest import RegionOfInterest
 from ultralytics import YOLO
 from PIL import Image
 import ultralytics
-from ultralytics.utils.plotting import Annotator
+
 ultralytics.checks()
 
 # ---------------------- GLOBAL CONSTANTS ----------------------
