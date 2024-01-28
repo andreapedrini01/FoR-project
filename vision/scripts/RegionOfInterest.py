@@ -46,7 +46,11 @@ class RegionOfInterest:
         if USING_REAL_CAM:
             points = np.array([[[457,557], [555,272], [779,267], [960,532]]])
         else:
-            points = np.array([[[845,409], [1201,412], [1545,913], [658, 921]]])
+            points = np.array([[[799,377], [1139,371], [1504,871], [642,875]]])#np.array([[[845,409], [1201,412], [1545,913], [658, 921]]])
+        
+
+
+
 
         # define the region of interest without aliasing
         cv2.drawContours(mask, [points], -1, (255, 255, 255), -1, cv2.LINE_AA)
