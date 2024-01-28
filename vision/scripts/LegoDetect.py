@@ -121,7 +121,7 @@ class LegoDetect:
         # Bounding boxes
         #bboxes = self.results[0].boxes #.pandas().xyxy[0].to_dict(orient="records")
         for r in self.results:
-           # annotator = Annotator(img_path)
+        
             boxes = r.boxes
 
             for box in boxes:
@@ -135,17 +135,15 @@ class LegoDetect:
                 y2=int(box.xyxy[0][3]) 
                 
                 print('x1 = ', x1, 'y1 = ', y1, 'x2 = ', x2, 'y2 = ', y2)
-               # annotator.box_label(b, model.names[int(c)])
-            
-        # Add lego to list           
-        self.lego_list.append(Lego(name, conf, x1, y1, x2, y2, img_path))
-       # img = annotator.result()  
-        #cv2.imshow('YOLO V8 Detection', img)    
-      
+                # Add lego to list           
+                self.lego_list.append(Lego(name, conf, x1, y1, x2, y2, img_path))
+
 
         # Info
         print('Detected', len(self.lego_list), 'object(s)\n')
-        self.show()
+        for l in self.lego_list:
+            l.show()
+    
 
     def show(self):
         """ @brief This function show infos of detected legos
