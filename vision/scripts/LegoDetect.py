@@ -18,6 +18,7 @@ from RegionOfInterest import RegionOfInterest
 from ultralytics import YOLO
 from PIL import Image
 import ultralytics
+from ultralytics.utils.plotting import Annotator
 ultralytics.checks()
 
 # ---------------------- GLOBAL CONSTANTS ----------------------
@@ -108,7 +109,7 @@ class LegoDetect:
 
         # Detection model
         self.results = MODEL(img_path)
-        print(self.results)
+        #print(self.results)
         #self.results.show
 
 
@@ -118,20 +119,29 @@ class LegoDetect:
         print('img size:', img.width, 'x', img.height)
 
         # Bounding boxes
-        bboxes = self.results[0].boxes #.pandas().xyxy[0].to_dict(orient="records")
-        for bbox in bboxes:
-            print("bbox = ", bbox)
+        #bboxes = self.results[0].boxes #.pandas().xyxy[0].to_dict(orient="records")
+        for r in self.results:
+           # annotator = Annotator(img_path)
+            boxes = r.boxes
 
-            name = bbox.cls 
-            conf = bbox.conf
-            #x1 = int(bbox['xmin'])
-            #y1 = int(bbox['ymin'])
-            #x2 = int(bbox['xmax'])
-            #y2 = int(bbox['ymax'])
+            for box in boxes:
+                name = box.cls 
+                conf = box.conf
+                b = box.xyxy[0]  # get box coordinates in (left, top, right, bottom) format
+                print(b)
+                x1=int(box.xyxy[0][0])
+                y1=int(box.xyxy[0][1])
+                x2=int(box.xyxy[0][2]) 
+                y2=int(box.xyxy[0][3]) 
+                
+                print('x1 = ', x1, 'y1 = ', y1, 'x2 = ', x2, 'y2 = ', y2)
+               # annotator.box_label(b, model.names[int(c)])
             
-            # Add lego to list
-            self.lego_list.append(Lego(name, conf, 0, 0, 0, 0, img_path))
-        
+        # Add lego to list           
+        self.lego_list.append(Lego(name, conf, x1, y1, x2, y2, img_path))
+       # img = annotator.result()  
+        #cv2.imshow('YOLO V8 Detection', img)    
+      
 
         # Info
         print('Detected', len(self.lego_list), 'object(s)\n')
@@ -163,7 +173,7 @@ class Lego:
         """
 
         self.name = name
-        #self.class_id = LEGO_NAMES.index(name)
+        self.class_id = name #LEGO_NAMES.index(name)
         self.confidence = conf
         self.xmin = x1
         self.ymin = y1
@@ -185,15 +195,15 @@ class Lego:
 
         # Resize detected obj
         # Not neccessary. Useful when the obj is too small to see
-        #aspect_ratio = self.img.size[1] / self.img.size[0]
-        #new_width = 70  # resize width (pixel) for detected object to show
-        #new_size = (new_width, int(new_width * aspect_ratio))
-        #self.img = self.img.resize(new_size, Image.LANCZOS)
+        aspect_ratio = self.img.size[1] / self.img.size[0]
+        new_width = 70  # resize width (pixel) for detected object to show
+        new_size = (new_width, int(new_width * aspect_ratio))
+        #elf.img = self.img.resize(new_size, Image.LANCZOS)
 
         # Lego details
         display(self.img)
         print('class =', self.name)
-        #print('id =', self.class_id)
+        print('id =', self.class_id)
         print('confidence =', '%.2f' %self.confidence)
         print('center_point =', self.center_point)
         print('center_point_uv =', self.center_point_uv)
