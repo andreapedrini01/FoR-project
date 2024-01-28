@@ -122,15 +122,15 @@ class LegoDetect:
         for bbox in bboxes:
             print("bbox = ", bbox)
 
-            name = bbox.name
+            name = bbox.cls 
             conf = bbox.conf
             #x1 = int(bbox['xmin'])
-           # y1 = int(bbox['ymin'])
-           # x2 = int(bbox['xmax'])
-            y2 = int(bbox['ymax'])
+            #y1 = int(bbox['ymin'])
+            #x2 = int(bbox['xmax'])
+            #y2 = int(bbox['ymax'])
             
             # Add lego to list
-           # self.lego_list.append(Lego(name, conf, x1, y1, x2, y2, img_path))
+            self.lego_list.append(Lego(name, conf, 0, 0, 0, 0, img_path))
         
 
         # Info
@@ -163,7 +163,7 @@ class Lego:
         """
 
         self.name = name
-        self.class_id = LEGO_NAMES.index(name)
+        #self.class_id = LEGO_NAMES.index(name)
         self.confidence = conf
         self.xmin = x1
         self.ymin = y1
@@ -185,15 +185,15 @@ class Lego:
 
         # Resize detected obj
         # Not neccessary. Useful when the obj is too small to see
-        aspect_ratio = self.img.size[1] / self.img.size[0]
-        new_width = 70  # resize width (pixel) for detected object to show
-        new_size = (new_width, int(new_width * aspect_ratio))
-        self.img = self.img.resize(new_size, Image.LANCZOS)
+        #aspect_ratio = self.img.size[1] / self.img.size[0]
+        #new_width = 70  # resize width (pixel) for detected object to show
+        #new_size = (new_width, int(new_width * aspect_ratio))
+        #self.img = self.img.resize(new_size, Image.LANCZOS)
 
         # Lego details
         display(self.img)
         print('class =', self.name)
-        print('id =', self.class_id)
+        #print('id =', self.class_id)
         print('confidence =', '%.2f' %self.confidence)
         print('center_point =', self.center_point)
         print('center_point_uv =', self.center_point_uv)
