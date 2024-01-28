@@ -17,6 +17,8 @@ from PIL import Image
 from RegionOfInterest import RegionOfInterest
 from ultralytics import YOLO
 from PIL import Image
+import ultralytics
+ultralytics.checks()
 
 # ---------------------- GLOBAL CONSTANTS ----------------------
 FILE = Path(__file__).resolve()
@@ -106,7 +108,7 @@ class LegoDetect:
 
         # Detection model
         self.results = MODEL(img_path)
-        print(self.results.xyxy[0])
+        print(self.results)
         #self.results.show
 
 
@@ -116,16 +118,19 @@ class LegoDetect:
         print('img size:', img.width, 'x', img.height)
 
         # Bounding boxes
-        bboxes = self.results.bboxes #.pandas().xyxy[0].to_dict(orient="records")
+        bboxes = self.results[0].boxes #.pandas().xyxy[0].to_dict(orient="records")
         for bbox in bboxes:
-            name = bbox['name']
-            conf = bbox['confidence']
-            x1 = int(bbox['xmin'])
-            y1 = int(bbox['ymin'])
-            x2 = int(bbox['xmax'])
+            print("bbox = ", bbox)
+
+            name = bbox.name
+            conf = bbox.conf
+            #x1 = int(bbox['xmin'])
+           # y1 = int(bbox['ymin'])
+           # x2 = int(bbox['xmax'])
             y2 = int(bbox['ymax'])
+            
             # Add lego to list
-            self.lego_list.append(Lego(name, conf, x1, y1, x2, y2, img_path))
+           # self.lego_list.append(Lego(name, conf, x1, y1, x2, y2, img_path))
         
 
         # Info
@@ -170,6 +175,7 @@ class Lego:
         self.center_point_uv = (self.img_source.width - self.center_point[0], self.center_point[1])
         self.point_cloud = ()
         self.point_world = ()
+    
 
     def show(self):
         """ @brief Show lego info
@@ -194,7 +200,8 @@ class Lego:
         print('--> point cloud =', self.point_cloud)
         print('--> point world =', self.point_world)
         print()
-
+    
+        
 # ---------------------- MAIN ----------------------
 # To use in command:
 # python3 LegoDetect.py /path/to/img...
