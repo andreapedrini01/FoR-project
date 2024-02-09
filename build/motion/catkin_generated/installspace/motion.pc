@@ -1,0 +1,8 @@
+prefix=/home/lorenzo/FoR-project/install
+
+Name: motion
+Description: Description of motion
+Version: 0.0.0
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib 
+Requires: 
