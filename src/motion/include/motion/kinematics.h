@@ -1,11 +1,11 @@
 /**
  * @file kinematics.h
- * @author Davide De Martini (davide.demartini@studenti.unitn.it)
+ * @author Andrea Pedrini (andrea.pedrini@studenti.unitn.it)
  * @brief This file contains the kinematics functions
  * @version 0.1
- * @date 2023-02-17
+ * @date 2024-02-09
  * 
- * @copyright Copyright (c) 2023
+ * @copyright Copyright (c) 2024
  * 
  */
 #ifndef KINEMATICS_H
@@ -30,7 +30,7 @@ struct frame
 };
 
 /**
- * @brief create the transformation matrix for the first joint
+ * @brief Calculate the transformation matrix for the first joint
  *
  * @param th1 Angle of the first joint
  * @return Eigen::Matrix4f
