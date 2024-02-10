@@ -30,7 +30,7 @@ IMG_ZED = os.path.abspath(os.path.join(ROOT, "log/img_ZED_cam.png"))
 
 w_R_c = np.matrix([[0, -0.499, 0.866], [-1, 0, 0], [0, -0.866, -0.499]])
 x_c = np.array([-0.9, 0.24, -0.35])
-base_offset = np.array([0.5, 0.35, 1.75])
+base_offset = np.array([0.5+0.0154, 0.35, 1.75])
 
 OFF_SET = 0.86 + 0.1
 REAL_ROBOT = 0
@@ -62,7 +62,7 @@ class Vision:
         self.pos_pub = ros.Publisher("/vision/pos", pos, queue_size=1)
         self.ack_sub = ros.Subscriber('/vision/ack', Int32, self.ackCallbak)
         self.ack_pub = ros.Publisher('/taskManager/stop', Int32, queue_size=1)
-        
+
     def receive_image(self, data):
         """ @brief Callback function whenever take msg from ZED camera
             @param data (msg): msg taken from ZED node
@@ -95,7 +95,7 @@ class Vision:
         if not self.allow_receive_pointcloud:
             return
         self.allow_receive_pointcloud = False
-        
+
         self.pos_msg_list = []
 
         for lego in self.lego_list:
@@ -125,7 +125,7 @@ class Vision:
 
             if pos_msg.z < OFF_SET:
                 self.pos_msg_list.append(pos_msg)
-            
+
         print('\nVISION DONE DETECTING LEGO!\nREADY FOR MOTION!')
         self.vision_ready = 1
         self.send_pos_msg()
@@ -137,7 +137,7 @@ class Vision:
 
         if self.vision_ready == 1 and ack_ready.data == 1:
             self.send_pos_msg()
-            
+
     def send_pos_msg(self):
         """ @brief send the position of the lego to motion planner
         """
@@ -147,17 +147,20 @@ class Vision:
             print('\nPosition published:\n', pos_msg)
         except IndexError:
             print('\nFINISH ALL LEGO\n')
-            
+
 # ---------------------- MAIN ----------------------
 # To use in command:
 # python3 Vision.py
- 
-if __name__ == '__main__':
 
+
+# Check if the current module is being run as the main program
+if __name__ == '__main__':
+    # Create an instance of the Vision class
     vision = Vision()
 
     try:
+        # Start the ROS node and enter the event loop
         ros.spin()
     except KeyboardInterrupt:
+        # Handle keyboard interrupt and print a message
         print("Shutting down")
-    
