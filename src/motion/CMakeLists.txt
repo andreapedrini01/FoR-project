@@ -19,20 +19,20 @@ catkin_package()
 include_directories(include ${catkin_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS})
 
 
-#install(TARGETS taskManager
-#  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-#)
+add_executable(taskManager src/taskManager.cpp)
+target_link_libraries(taskManager ${catkin_LIBRARIES})
 
-# add_executable(taskManager src/taskManager.cpp)
-# target_link_libraries(taskManager ${catkin_LIBRARIES})
+install(TARGETS taskManager
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+
 
 add_executable(motionPlanner src/motionPlanner.cpp)
 target_link_libraries(motionPlanner ${catkin_LIBRARIES})
 
-add_executable(taskManager src/taskManager.cpp)
-target_link_libraries(taskManager ${catkin_LIBRARIES})
 
 install(TARGETS motionPlanner
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
