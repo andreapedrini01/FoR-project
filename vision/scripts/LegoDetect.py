@@ -35,22 +35,15 @@ CONFIDENCE = 0.7
 MODEL = YOLO('../weights/best.pt')
 
 LEGO_NAMES = [  'X1-Y1-Z2',
-                'X1-Y2-Z1',
                 'X1-Y2-Z2',
-                'X1-Y2-Z2-CHAMFER',
-                'X1-Y2-Z2-TWINFILLET',
                 'X1-Y3-Z2',
-                'X1-Y3-Z2-FILLET',
-                'X1-Y4-Z1',
-                'X1-Y4-Z2',
-                'X2-Y2-Z2',
-                'X2-Y2-Z2-FILLET']
-
+                'X1-Y4-Z2'  ]
+ 
 # ---------------------- CLASS ----------------------
 
 class LegoDetect:
     """
-    @brief This class use custom trained weights and detect lego blocks with YOLOv5
+    @brief This class use custom trained weights and detect lego blocks with YOLOv8
     """
 
     def __init__(self, img_path):
@@ -60,6 +53,7 @@ class LegoDetect:
 
         MODEL.conf = CONFIDENCE
         MODEL.multi_label = False
+        
         # MODEL.iou = 0.5
     
         self.lego_list = []
@@ -117,24 +111,27 @@ class LegoDetect:
         img = Image.open(img_path)
         print(img_path)
         print('img size:', img.width, 'x', img.height)
-
+        
         # Bounding boxes
         #bboxes = self.results[0].boxes #.pandas().xyxy[0].to_dict(orient="records")
         for r in self.results:
-        
-            boxes = r.boxes
+            
 
-            for box in boxes:
-                name = box.cls 
+            for box in r.boxes:
+
+                for c in box.cls:
+                    name = int(c)
+
                 conf = box.conf
-                b = box.xyxy[0]  # get box coordinates in (left, top, right, bottom) format
-                print(b)
-                x1=int(box.xyxy[0][0])
-                y1=int(box.xyxy[0][1])
-                x2=int(box.xyxy[0][2]) 
-                y2=int(box.xyxy[0][3]) 
                 
-                print('x1 = ', x1, 'y1 = ', y1, 'x2 = ', x2, 'y2 = ', y2)
+                b = box.xyxy[0]  # get box coordinates in (left, top, right, bottom) format
+                
+                x1=int(b[0])
+                y1=int(b[1])
+                x2=int(b[2]) 
+                y2=int(b[3]) 
+                
+                
                 # Add lego to list           
                 self.lego_list.append(Lego(name, conf, x1, y1, x2, y2, img_path))
 
@@ -170,8 +167,8 @@ class Lego:
             @param img_source_path (String): path to image
         """
 
-        self.name = name
-        self.class_id = name #LEGO_NAMES.index(name)
+        self.name = LEGO_NAMES[name]
+        self.class_id = name
         self.confidence = conf
         self.xmin = x1
         self.ymin = y1
