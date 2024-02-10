@@ -1,1 +1,1 @@
-# FoR-project
+Project of fundamentals of robotics
