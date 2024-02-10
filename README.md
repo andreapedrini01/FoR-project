@@ -1,2 +1,3 @@
-# &emsp;&emsp;&emsp;&emsp;Project of fundamentals of robotics
+# &emsp;&emsp;&emsp;&emsp;Project of Fundamentals of Robotics
 ----------
+Developed by: Lorenzo  ~  Federico  ~  Andrea  ~ Andrea Pedrini
