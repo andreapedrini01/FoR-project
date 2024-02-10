@@ -1,155 +1,149 @@
-"""!
-@file Vision.py
-@author Anh Tu Duong (anhtu.duong@studenti.unitn.it), Giulio Zamberlan (giulio.zamberlan@studenti.unitn.it)
-@brief Defines the Vision node that communicates with Motion node.
-@date 2023-02-17
+"""
+file Vision.py
+@author Federico Buzzini
+@brief This file defines the class Vision and its methods to recognize lego blocks from ZED camera and communicate with different ROS node
+@date 2024-01-23
 """
 
-# ---------------------- IMPORT ----------------------
-from pathlib import Path
-import sys
+# -------------------------- IMPORT -------------------------
 import os
-import rospy as ros
-import numpy as np
+import sys
+from pathlib import Path
 import cv2 as cv
-from cv_bridge import CvBridge
-from sensor_msgs.msg import Image
-import sensor_msgs.point_cloud2 as point_cloud2
-from sensor_msgs.msg import PointCloud2
-from std_msgs.msg import Int32
+import numpy as np
+import rospy as ros
 from motion.msg import pos
+from std_msgs.msg import Int32
+from sensor_msgs.msg import PointCloud2
+import sensor_msgs.point_cloud2 as point_cloud2
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
 from LegoDetect import LegoDetect
 
-# ---------------------- GLOBAL CONSTANTS ----------------------
+# ------------------------- GLOBAL CONSTANTS ------------------------
+
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]
+
 if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))  # add ROOT to PATH
 ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 IMG_ZED = os.path.abspath(os.path.join(ROOT, "log/img_ZED_cam.png"))
 
+OFFSET = 0.86 + 0.1
 w_R_c = np.matrix([[0, -0.499, 0.866], [-1, 0, 0], [0, -0.866, -0.499]])
-x_c = np.array([-0.9, 0.24, -0.35])
 base_offset = np.array([0.5+0.0154, 0.35, 1.75])
+x_c = np.array([-0.9, 0.24, -0.35])
 
-OFF_SET = 0.86 + 0.1
-REAL_ROBOT = 0
-
-# ---------------------- CLASS ----------------------
+# ------------------------- CLASS -------------------------
 
 class Vision:
-    """
-    @brief This class recognizes lego blocks from ZED camera and communicates with different ROS node
-    """
 
     def __init__(self):
-        """ @brief Class constructor
-        """
 
+        # Initialize ROS node
         ros.init_node('vision', anonymous=True)
 
-        self.lego_list = []
+        # Initialize OpenCV bridge
         self.bridge = CvBridge()
+        self.block_list = []
+
 
         # Flags
-        self.allow_receive_image = True
-        self.allow_receive_pointcloud = False
+        self.pointcloud_ready = False
+        self.receive_image_ready = True
         self.vision_ready = 0
 
-        # Subscribe and publish to ros nodes
-        self.image_sub = ros.Subscriber("/ur5/zed_node/left_raw/image_raw_color", Image, self.receive_image)
+        # Subscribers and publishers for ROS communication with other nodes
         self.pointcloud_sub = ros.Subscriber("/ur5/zed_node/point_cloud/cloud_registered", PointCloud2, self.receive_pointcloud, queue_size=1)
-        self.pos_pub = ros.Publisher("/vision/pos", pos, queue_size=1)
+        self.image_sub = ros.Subscriber("/ur5/zed_node/left_raw/image_raw_color", Image, self.receive_image)
         self.ack_sub = ros.Subscriber('/vision/ack', Int32, self.ackCallbak)
+
         self.ack_pub = ros.Publisher('/taskManager/stop', Int32, queue_size=1)
+        self.pos_pub = ros.Publisher("/vision/pos", pos, queue_size=1)
+
+
 
     def receive_image(self, data):
-        """ @brief Callback function whenever take msg from ZED camera
-            @param data (msg): msg taken from ZED node
-        """
+
+        #Callback function whenever take image msg from ZED camera
 
         # Flag
-        if not self.allow_receive_image:
+        if not self.receive_image_ready:
             return
-        self.allow_receive_image = False
+        self.receive_image_ready = False
 
-        # Convert ROS image to OpenCV image
+        # Convert image to OpenCV format
         try:
             cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
         except CvBridgeError as e:
             print(e)
 
-        # Save image and detect lego
+        # Save image to file for debugging purposes (optional)
         cv.imwrite(IMG_ZED, cv_image)
         legoDetect = LegoDetect(IMG_ZED)
-        self.lego_list = legoDetect.lego_list
+        self.block_list = legoDetect.block_list
 
-        self.allow_receive_pointcloud = True
+        self.pointcloud_ready = True
 
     def receive_pointcloud(self, msg):
-        """ @brief Callback function whenever take point_cloud msg from ZED camera
-            @param msg (msg): msg taken from ZED node
-        """
+        #Callback function whenever take point cloud msg from ZED camera
 
         # Flag
-        if not self.allow_receive_pointcloud:
+        if not self.pointcloud_ready:
             return
-        self.allow_receive_pointcloud = False
+        self.pointcloud_ready = False
 
         self.pos_msg_list = []
 
-        for lego in self.lego_list:
+        for block in self.block_list:
 
-            # Get point cloud
-            for data in point_cloud2.read_points(msg, field_names=['x','y','z'], skip_nans=True, uvs=[lego.center_point]):
-                lego.point_cloud = (data[0], data[1], data[2])
-
-            if REAL_ROBOT:
-                lego.point_world = lego.point_cloud
-            else:
-                # Transform point cloud to world
-                lego.point_world = w_R_c.dot(lego.point_cloud) + x_c + base_offset
+            # Get point cloud from ZED camera and transform it to world coordinates using the camera pose and the base offset of the robot arm
+            for data in point_cloud2.read_points(msg, field_names=['x','y','z'], skip_nans=True, uvs=[block.center_point]):
+                block.point_cloud = (data[0], data[1], data[2])
+                block.point_world = w_R_c.dot(block.point_cloud) + x_c + base_offset
 
             # Show details
-            lego.show()
+            block.show()
 
             # Create msg for pos_pub
             pos_msg = pos()
-            pos_msg.class_id = lego.class_id
-            pos_msg.x = lego.point_world[0, 0]
-            pos_msg.y = lego.point_world[0, 1]
-            pos_msg.z = lego.point_world[0, 2]
+            pos_msg.class_id = block.class_id
             pos_msg.pitch = 0
             pos_msg.roll = 0
             pos_msg.yaw = 0
+            pos_msg.x = block.point_world[0, 0]
+            pos_msg.y = block.point_world[0, 1]
+            pos_msg.z = block.point_world[0, 2]
 
-            if pos_msg.z < OFF_SET:
+
+            if pos_msg.z < OFFSET:
                 self.pos_msg_list.append(pos_msg)
 
-        print('\nVISION DONE DETECTING LEGO!\nREADY FOR MOTION!')
+        print('\nVISON FINISHED!\nWAITING FOR MOTION TO ACK\n')
         self.vision_ready = 1
         self.send_pos_msg()
 
     def ackCallbak(self, ack_ready):
-        """ @brief check if the motion planner is ready to receive the position of the lego
-            @param ack_ready (msg): msg from Motion node
-        """
+        #Callback function whenever take ack msg from taskManager node to check if it is ready to receive the position of the block
 
-        if self.vision_ready == 1 and ack_ready.data == 1:
+        if  ack_ready.data == 1 and self.vision_ready == 1:
             self.send_pos_msg()
 
     def send_pos_msg(self):
-        """ @brief send the position of the lego to motion planner
-        """
+        #Send position message to the taskManager node
+
         try:
             pos_msg = self.pos_msg_list.pop()
             self.pos_pub.publish(pos_msg)
             print('\nPosition published:\n', pos_msg)
         except IndexError:
-            print('\nFINISH ALL LEGO\n')
+            print('\nALL DONE, NO MORE BLOCKS\n')
 
-# ---------------------- MAIN ----------------------
-# To use in command:
+
+
+# ----------------------------- MAIN ----------------------------
+# to run this file, open a terminal and type in the correct folder path the following command:
 # python3 Vision.py
 
 
