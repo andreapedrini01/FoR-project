@@ -1,2 +1,0 @@
-motion
--DCATKIN_DEVEL_PREFIX=/home/lorenzo/FoR-project/devel -DCMAKE_INSTALL_PREFIX=/home/lorenzo/FoR-project/install -G Unix Makefiles
