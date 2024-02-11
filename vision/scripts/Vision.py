@@ -138,6 +138,7 @@ class Vision:
             self.pos_pub.publish(pos_msg)
             print('\nPosition published:\n', pos_msg)
         except IndexError:
+            self.ack_pub
             print('\nALL DONE, NO MORE BLOCKS\n')
 
 

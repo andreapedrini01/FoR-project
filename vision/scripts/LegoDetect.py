@@ -14,7 +14,7 @@ import numpy as np
 import cv2 as cv
 from IPython.display import display
 from PIL import Image
-from RegionOfInterest import RegionOfInterest
+
 from ultralytics import YOLO
 from PIL import Image
 import ultralytics
@@ -78,16 +78,7 @@ class LegoDetect:
                 self.detect(img_path)
                 choice = '0'
 
-    def detect_ROI(self, img_path):
-        """ @brief Detect using Region Of Interest
-            @param img_path (String): path of input image
-        """
 
-        print('Draw RegionOfInterest')
-        roi = RegionOfInterest(img_path, IMG_ROI)
-        roi.run_auto()
-        print('Detecting RegionOfInterest...')
-        self.detect(IMG_ROI)
 
     def detect(self, img_path):
         """ @brief This function pass the image path to the model and calculate bounding boxes for each object
