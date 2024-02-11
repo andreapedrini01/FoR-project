@@ -19,18 +19,18 @@
 #include <iostream>
 #include <complex>
 
-// ----------- DEFINES ----------- //
-/// Loop rate of the node
+/* ----------- DEFINES ----------- */
+// Loop rate for pause
 #define LOOP_RATE 1000
-/// Number of joints
+// Number of joints
 #define JOINTS 8
 
-// ----------- NAMESPACES ----------- //
+/* ----------- NAMESPACES ----------- */
 
 using namespace std;
 using namespace Eigen;
 
-// ----------- STRUCTS ----------- //
+/* ----------- STRUCTS ----------- */
 
 /**
  * @brief This struct contains the position and orientation of the end-effector
@@ -41,30 +41,30 @@ struct Pose
     Vector3f orientation;
 };
 
-// ----------- GLOBAL VARIABLES ----------- //
-/// Position of the end-effector
+/* ----------- GLOBAL VARIABLES ----------- */
+// Position of the end-effector
 Pose pose;
-/// Class of the block
+// Class of the block (colour)
 int class_id;
-/// Flag to check if it have to grasp
+// Flag for grasping procedure
 int grasp = 0;
-/// Publisher for the desired joint state
+// Publisher for the desired joint state
 ros::Publisher pub_des_jstate;
-/// Publisher for the ack
+// Publisher for the ack
 ros::Publisher ack_pos;
-/// Subscriber for the position msg
+// Subscriber to the position topic
 ros::Subscriber sub_pos;
-/// Flag to check if it is in simulation
-int real_robot = 0;
-/// @brief Initial joint configuration
+//block positioning counter
+int class1, class2, class3, class4;
+// Starting joint configuration
 VectorXf TH0(6);
-/// @brief Flag to check if it is the first time that the node is called
+// Flag to check if it is the first time that the node is called
 int first = 1;
-/// @brief Max time for the trajectory
-double maxT = 10;
+// Max time for a trajectory
+double maxT = 6;
 
 
-// ----------- FUNCTION PROTOTIPES ----------- //
+/* ----------- FUNCTION DEFINITION ----------- */
 VectorXf invDiffKinematicControlCompleteQuat(VectorXf q, Vector3f xe, Vector3f xd, Vector3f vd, Quaternionf qe, Quaternionf qd, Vector3f wd);
 Vector3f pd(double t, Vector3f xef, Vector3f xe0);
 Quaternionf qd(double tb, Quaternionf qf, Quaternionf q0);
@@ -76,7 +76,7 @@ void move();
 void startingPosition();
 void ack();
 
-// ----------- MAIN ----------- //
+/* ----------- MAIN ----------- */
 
 int main(int argc, char **argv)
 {
@@ -90,7 +90,10 @@ int main(int argc, char **argv)
 
     sub_pos = node.subscribe("/motion/pos", 1, posCallback);
 
+    class1=class2=class3=class4=0;
+
     startingPosition();
+    ack();
 
     while (ros::ok())
     {
@@ -126,7 +129,7 @@ void invDiffKinematicControlSimCompleteQuat(Vector3f xef, Vector3f phief, float 
     kp = Matrix3f::Identity() * 10;
 
     Matrix3f kq; // orientation gain
-    kq = Matrix3f::Identity() * (-10);
+    kq = Matrix3f::Identity() * 10;
 
     VectorXf qdotk(6); // joint velocities coefficients
 
@@ -157,7 +160,7 @@ void invDiffKinematicControlSimCompleteQuat(Vector3f xef, Vector3f phief, float 
         work = quatMult(qd(i+dt, qf, q0), (qd(i, qf, q0).conjugate()));
         wd = work.vec()*(2/dt);
 
-        // coefficient
+        // joint velocity
         qdotk = invDiffKinematicControlCompleteQuat(qk, now.xyz, pd(i, xef, start.xyz), vd, qe, qd(i, qf, q0), wd);
 
         // euler integration
@@ -166,28 +169,28 @@ void invDiffKinematicControlSimCompleteQuat(Vector3f xef, Vector3f phief, float 
         sendJointState(qk);
     }
     TH0 = qk;
-    cout<<"## movimento completato ##"<<endl;
+    cout<<"## movement completed ##"<<endl;
 }
 
 /**
  * @brief      This function is used to calculate the joint velocities using the jacobian matrix
  *
- * @param[in]  q     The current joint config
- * @param[in]  xe    The current end-effector position
- * @param[in]  xd    The desired end-effector position
- * @param[in]  vd    The desired end-effector linear velocity
- * @param[in]  qe    The current end-effector orientation
- * @param[in]  qd    The desired end-effector orientation
- * @param[in]  wd    The desired end-effector angular velocity
+ * @param  q     The current joint config
+ * @param  xe    The current end-effector position
+ * @param  xd    The desired end-effector position
+ * @param  vd    The desired end-effector linear velocity
+ * @param  qe    The current end-effector orientation
+ * @param  qd    The desired end-effector orientation
+ * @param  wd    The desired end-effector angular velocity
  *
  * @return     The joint velocities
  */
-VectorXf invDiffKinematicControlCompleteQuat(VectorXf q, Vector3f xe, Vector3f xd, Vector3f vd, Quaternionf qe, Quaternionf qd, Vector3f wd)
+VectorXf invDiffKinematicControlCompleteQuat(VectorXf q, Vector3f xe, Vector3f xd, Vector3f vd, Quaternionf qe, Quaternionf qdo, Vector3f wd)
 {
     MatrixXf J;
     J = jacobian(q);
 
-    Quaternionf qeo = quatMult(qd, (qe.conjugate()));
+    Quaternionf qeo = quatMult(qdo, (qe.conjugate()));
     Vector3f eo = qeo.vec();
 
     VectorXf qdot;
@@ -214,9 +217,9 @@ VectorXf invDiffKinematicControlCompleteQuat(VectorXf q, Vector3f xe, Vector3f x
 /**
  * @brief      This function is used to calculate trajectory for the end-effector position
  *
- * @param[in]  t     The current time
- * @param[in]  xef    The desired end-effector position
- * @param[in]  xe0    The start end-effector position
+ * @param  t     The current time
+ * @param  xef    The desired end-effector position
+ * @param  xe0    The start end-effector position
  *
  * @return     The end-effector position
  */
@@ -236,11 +239,11 @@ Vector3f pd(double t, Vector3f xef, Vector3f xe0)
 /**
  * @brief      This function is used to calculate trajectory for the end-effector orientation
  *
- * @param[in]  t     The current time
- * @param[in]  xef    The desired end-effector position
- * @param[in]  xe0    The start end-effector position
+ * @param  t     The current time
+ * @param  qf    The desired end-effector position
+ * @param  q0    The start end-effector position
  *
- * @return     The end-effector position
+ * @return     The end-effector orientation
  */
 Quaternionf qd(double tb, Quaternionf qf, Quaternionf q0){  
 
@@ -249,9 +252,7 @@ Quaternionf qd(double tb, Quaternionf qf, Quaternionf q0){
     if(t>1)
         return qf;
     else
-        return q0.slerp(t, qf);
-    
-    
+        return q0.slerp(t, qf);    
 }
 
 
@@ -279,6 +280,8 @@ void posCallback(const motion::pos::ConstPtr &msg)
     pose.position(0) = msg->x-0.5;
     pose.position(1) = -(msg->y)+0.35;
     pose.position(2) = msg->z;
+    
+    //pose.orientation << msg->yaw, msg->pitch, msg->roll;
 
     pose.orientation(2) = msg->roll;
     pose.orientation(1) = msg->pitch;
@@ -303,19 +306,18 @@ void sendJointState(VectorXf q)
     {
         jointState_msg_robot.data[i] = q(i);
     }
-    if (!real_robot)
-    {
-        if (grasp)
-        {          
-            jointState_msg_robot.data[6] = -0.20;
-            jointState_msg_robot.data[7] = -0.20;
-        }
-        else
-        {
-            jointState_msg_robot.data[6] = 1.0;
-            jointState_msg_robot.data[7] = 1.0;
-        }
+    
+    if (grasp)
+    {          
+        jointState_msg_robot.data[6] = -0.23;
+        jointState_msg_robot.data[7] = -0.23;
     }
+    else
+    {
+        jointState_msg_robot.data[6] = 1.0;
+        jointState_msg_robot.data[7] = 1.0;
+    }
+    
 
     pub_des_jstate.publish(jointState_msg_robot);
     loop_rate.sleep();
@@ -335,7 +337,7 @@ void move()
     invDiffKinematicControlSimCompleteQuat(target, pose.orientation, dt);
     
     // go to the desired position
-    target << pose.position(0), pose.position(1), pose.position(2);
+    target << pose.position(0), pose.position(1), pose.position(2)+0.03;
     invDiffKinematicControlSimCompleteQuat(pose.position, pose.orientation, dt);
     
     // grasp
@@ -362,24 +364,29 @@ void move()
             break;
 
         case 1:
-            target << 0.25, -0.26, 0.82;
+            target << (0.25+0.5*class1), -0.26, 0.82;
+            class1++;
             break;
 
         case 2:
-            target << 0.35, -0.26, 0.82;
+            target << (0.35+0.5*class2), -0.26, 0.82;
+            class2++;
             break;
 
         case 3:
-            target << 0.25, 0.0, 0.82;
+            target << (0.25+0.5*class3), 0.0, 0.82;
+            class3++;
             break;
 
         case 4:
-            target << 0.35, 0.0, 0.82;
+            target << (0.35+0.5*class4), 0.0, 0.82;
+            class4++;
             break;
 
         default:
             break;
         }
+    pose.orientation << 0, 0, 0;
     invDiffKinematicControlSimCompleteQuat(target, pose.orientation, dt);
     
     // ungrasp
@@ -398,7 +405,8 @@ void move()
     // go to the starting position
     startingPosition();
 
-    cout<<"##### OPERAZIONE COMPLETATA #####"<<endl;
+    ack();
+    cout<<"##### OPERATION COMPLETE #####"<<endl;
 }
 
 /**
@@ -412,7 +420,6 @@ void startingPosition()
     targetp << 0.0, -0.4, 0.7;
     targeto << 0.0, 0.0, 0.0;
     invDiffKinematicControlSimCompleteQuat(targetp, targeto, dt);
-    ack();
 }
 
 /**
@@ -424,11 +431,10 @@ void ack()
     ros::Rate loop_rate(LOOP_RATE);
     std_msgs::Int32 ack;
     ack.data = 1;
-    // wait a little bit before sending the ack to the taskManager (not stress too much the robot)
+    // wait a little bit before sending the ack to the taskManager
     for (int i = 0; i < 40; i++)
     {
         loop_rate.sleep();
     }
     ack_pos.publish(ack);
-    //ack.data = 0;
 }
