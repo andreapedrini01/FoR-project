@@ -48,4 +48,4 @@ A number of blocks are stored without any specific order on a stand located with
   Andrea Pedrini [226607]
 </p>
 
-![image]()
+![image](assets/images/logo.jpg)
