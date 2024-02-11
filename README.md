@@ -35,6 +35,8 @@ A number of blocks are stored without any specific order on a stand located with
   - `tavolo_obstacles.world` is the .world template
 
 ## Installation
+The project has been developed and tested on Ubuntu 20.04 with ROS Noetic, also we used the [locosim](https://github.com/mfocchi/locosim) repository for the ur5 simulation. The installation of the project is the following:
+1) Clone the [locosim](https://github.com/mfocchi/locosim) repository and follow the instructions to install it
 
 ## How to run the project
 
