@@ -430,4 +430,5 @@ void ack()
         loop_rate.sleep();
     }
     ack_pos.publish(ack);
+    //ack.data = 0;
 }
