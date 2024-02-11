@@ -93,6 +93,7 @@ int main(int argc, char **argv)
     class1=class2=class3=class4=0;
 
     startingPosition();
+    ack();
 
     while (ros::ok())
     {
@@ -128,7 +129,7 @@ void invDiffKinematicControlSimCompleteQuat(Vector3f xef, Vector3f phief, float 
     kp = Matrix3f::Identity() * 10;
 
     Matrix3f kq; // orientation gain
-    kq = Matrix3f::Identity() * (-10);
+    kq = Matrix3f::Identity() * 10;
 
     VectorXf qdotk(6); // joint velocities coefficients
 
@@ -184,12 +185,12 @@ void invDiffKinematicControlSimCompleteQuat(Vector3f xef, Vector3f phief, float 
  *
  * @return     The joint velocities
  */
-VectorXf invDiffKinematicControlCompleteQuat(VectorXf q, Vector3f xe, Vector3f xd, Vector3f vd, Quaternionf qe, Quaternionf qd, Vector3f wd)
+VectorXf invDiffKinematicControlCompleteQuat(VectorXf q, Vector3f xe, Vector3f xd, Vector3f vd, Quaternionf qe, Quaternionf qdo, Vector3f wd)
 {
     MatrixXf J;
     J = jacobian(q);
 
-    Quaternionf qeo = quatMult(qd, (qe.conjugate()));
+    Quaternionf qeo = quatMult(qdo, (qe.conjugate()));
     Vector3f eo = qeo.vec();
 
     VectorXf qdot;
@@ -239,10 +240,10 @@ Vector3f pd(double t, Vector3f xef, Vector3f xe0)
  * @brief      This function is used to calculate trajectory for the end-effector orientation
  *
  * @param  t     The current time
- * @param  xef    The desired end-effector position
- * @param  xe0    The start end-effector position
+ * @param  qf    The desired end-effector position
+ * @param  q0    The start end-effector position
  *
- * @return     The end-effector position
+ * @return     The end-effector orientation
  */
 Quaternionf qd(double tb, Quaternionf qf, Quaternionf q0){  
 
@@ -279,6 +280,8 @@ void posCallback(const motion::pos::ConstPtr &msg)
     pose.position(0) = msg->x-0.5;
     pose.position(1) = -(msg->y)+0.35;
     pose.position(2) = msg->z;
+    
+    //pose.orientation << msg->yaw, msg->pitch, msg->roll;
 
     pose.orientation(2) = msg->roll;
     pose.orientation(1) = msg->pitch;
@@ -306,8 +309,8 @@ void sendJointState(VectorXf q)
     
     if (grasp)
     {          
-        jointState_msg_robot.data[6] = -0.20;
-        jointState_msg_robot.data[7] = -0.20;
+        jointState_msg_robot.data[6] = -0.23;
+        jointState_msg_robot.data[7] = -0.23;
     }
     else
     {
@@ -334,7 +337,7 @@ void move()
     invDiffKinematicControlSimCompleteQuat(target, pose.orientation, dt);
     
     // go to the desired position
-    target << pose.position(0), pose.position(1), pose.position(2);
+    target << pose.position(0), pose.position(1), pose.position(2)+0.03;
     invDiffKinematicControlSimCompleteQuat(pose.position, pose.orientation, dt);
     
     // grasp
@@ -402,6 +405,7 @@ void move()
     // go to the starting position
     startingPosition();
 
+    ack();
     cout<<"##### OPERATION COMPLETE #####"<<endl;
 }
 
@@ -416,7 +420,6 @@ void startingPosition()
     targetp << 0.0, -0.4, 0.7;
     targeto << 0.0, 0.0, 0.0;
     invDiffKinematicControlSimCompleteQuat(targetp, targeto, dt);
-    ack();
 }
 
 /**
