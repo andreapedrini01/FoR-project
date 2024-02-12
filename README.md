@@ -1,7 +1,7 @@
 <p align='center'>
     <h1 align="center">Project of Fundamentals of Robotics</h1>
     <p align="center">
-    Project for the Fundamental of Robotics course at the University of Trento A.Y. 2023/2024
+    Project of Fundamental of Robotics course at the University of Trento A.Y. 2023/2024
     </p>
 </p>
 
