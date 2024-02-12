@@ -81,7 +81,7 @@ python3 Vision.py
 ```BASH
 Continue  (ENTER)
 ```
-6) Press ENTER to continue or 1+ENTER to repeat the object detection
+6) Press `ENTER` to continue or `1+ENTER` to repeat the object detection
 
 ## Known Issues
 
