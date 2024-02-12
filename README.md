@@ -37,26 +37,44 @@ A number of blocks are stored without any specific order on a stand located with
 ## Installation
 The project has been developed and tested on Ubuntu 20.04 with ROS Noetic, also we used the [locosim](https://github.com/mfocchi/locosim) repository for the ur5 simulation. The installation of the project is the following:
 1) Clone the [locosim](https://github.com/mfocchi/locosim) repository and follow the instructions to install it
-
-## How to run the project
-1)Clone this repository in the /ros_ws folder:
+2) Clone this repository in the /ros_ws folder:
 ```BASH
-git clone https://github.com/andreapedrini01/FoR-project/edit/Federico/README.md
+cd ~/ros_ws
+git clone https://github.com/andreapedrini01/FoR-project/
 ```
-1)Copy the world file of the repository in the worlds folder
+3) Copy the .world file of the repository in the worlds folder
 ```BASH
 cd ~/ros_ws/FoR-project/
-cp
-
+cp <wordlName> ~/ros_ws/src/locosim/ros_impedance_controllers/worlds
+```
+4) Copy the models in the models folder
+```BASH
+cd ~/ros_ws/FoR-project/
+cp -r X1-Y1-Z2 X1-Y2-Z2 X1-Y3-Z2 X1-Y4-Z2 ~/ros_ws/src/locosim/ros_impedance_controllers/worlds/models
 ```
 
-1)Compile the project in the ros_ws folder:
+5) Compile the project in the ros_ws folder:
 ```BASH
 cd ~/ros_ws
 catkin_make install
 source install/setup.bash
 ```
 
+## How to run the project
+1) Run the Ur5_generic.py file
+2) Open an other terminal and run the taskManager
+```BASH
+rosrun motion taskManager
+``` 
+3) Open an other terminal and run the motionPlanner
+```BASH
+rosrun motion motionPlanner
+```
+4) Open an other terminal and run the vision node in the correct folder:
+```BASH
+cd ~/ros_ws/FoR-project/vision/scripts
+python3 Vision.py
+```
 
 ## Known Issues
 
