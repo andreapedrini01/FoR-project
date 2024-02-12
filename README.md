@@ -47,12 +47,12 @@ git clone https://github.com/andreapedrini01/FoR-project/
 3) Copy the .world file of the repository in the worlds folder
 ```BASH
 cd ~/ros_ws/src/FoR-project/
-cp tavolo_brick.world ~/ros_ws/src/locosim/ros_impedance_controllers/worlds
+cp tavolo_brick.world ~/ros_ws/src/locosim/ros_impedance_controller/worlds
 ```
 4) Copy the models in the models folder
 ```BASH
-cd ~/ros_ws/src/FoR-project/
-cp -r X1-Y1-Z2 X1-Y2-Z2 X1-Y3-Z2 X1-Y4-Z2 ~/ros_ws/src/locosim/ros_impedance_controllers/worlds/models
+cd ~/ros_ws/src/FoR-project/vision/models
+cp -r X1-Y1-Z2 X1-Y2-Z2 X1-Y3-Z2 X1-Y4-Z2 ~/ros_ws/src/locosim/ros_impedance_controller/worlds/models
 ```
 
 5) Compile the project in the ros_ws folder:
@@ -60,6 +60,15 @@ cp -r X1-Y1-Z2 X1-Y2-Z2 X1-Y3-Z2 X1-Y4-Z2 ~/ros_ws/src/locosim/ros_impedance_con
 cd ~/ros_ws
 catkin_make install
 source install/setup.bash
+```
+6) Write in terminal
+```BASH
+cd ~/ros_ws/src/locosim/robot_control/base_controllers
+gedit ur5_generic.py
+```
+7) Go to line 71 and change the line in
+```BASH
+self.world_name = "tavolo_brick.world"
 ```
 
 ## How to run the project
