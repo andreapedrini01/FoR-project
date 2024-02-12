@@ -47,7 +47,7 @@ git clone https://github.com/andreapedrini01/FoR-project/
 3) Copy the .world file of the repository in the worlds folder
 ```BASH
 cd ~/ros_ws/FoR-project/
-cp <wordlName> ~/ros_ws/src/locosim/ros_impedance_controllers/worlds
+cp <tavolo_brick.world> ~/ros_ws/src/locosim/ros_impedance_controllers/worlds
 ```
 4) Copy the models in the models folder
 ```BASH
@@ -77,6 +77,11 @@ rosrun motion motionPlanner
 cd ~/ros_ws/FoR-project/vision/scripts
 python3 Vision.py
 ```
+5) Now it will appear on terminal
+```BASH
+Continue  (ENTER)
+```
+6) Press ENTER to continue or 1+ENTER to repeat the object detection
 
 ## Known Issues
 
