@@ -23,12 +23,20 @@
           </mesh>
         </geometry>
         <material>
-          <lighting>1</lighting>
           <script>
             <uri>file://media/materials/scripts/gazebo.material</uri>
             <name>Gazebo/Purple</name>
           </script>
-          <shader type='pixel'/>
+          <ambient>0.8 0.0 0.8 1.0</ambient>
+          <diffuse>0.8 0.0 0.8 1.0</diffuse>
+          <specular>0.8 0.0 0.8 1.0</specular>
+          <emissive>0.0 0.0 0.0 0.0</emissive>
+          <shader type='vertex'>
+            <!-- Vertex shader content -->
+          </shader>
+          <shader type='pixel'>
+            <!-- Pixel shader content -->
+          </shader>
         </material>
         <transparency>0</transparency>
         <cast_shadows>1</cast_shadows>
@@ -46,21 +54,12 @@
         <surface>
           <friction>
             <ode>
-              <mu>1</mu>
-              <mu2>1</mu2>
+              <mu>4.0</mu> <!-- Increase friction for better grip -->
+              <mu2>1.0</mu2>
               <fdir1>0 0 0</fdir1>
-              <slip1>0</slip1>
-              <slip2>0</slip2>
+              <slip1>0.0</slip1>
+              <slip2>0.0</slip2>
             </ode>
-            <torsional>
-              <coefficient>1</coefficient>
-              <patch_radius>0</patch_radius>
-              <surface_radius>0</surface_radius>
-              <use_patch_radius>1</use_patch_radius>
-              <ode>
-                <slip>0</slip>
-              </ode>
-            </torsional>
           </friction>
           <bounce>
             <restitution_coefficient>0</restitution_coefficient>
@@ -71,7 +70,7 @@
             <collide_without_contact_bitmask>1</collide_without_contact_bitmask>
             <collide_bitmask>1</collide_bitmask>
             <ode>
-              <soft_cfm>0.9</soft_cfm>
+              <soft_cfm>0</soft_cfm>
               <soft_erp>0.2</soft_erp>
               <kp>1e+13</kp>
               <kd>1</kd>
