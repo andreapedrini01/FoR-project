@@ -18,6 +18,8 @@
 ## Introduction
 A number of blocks are stored without any specific order on a stand located within the workspace of a robotic manipulator (Ur5). The manipulator is an anthropomorphic arm, with a spherical wrist and a two-fingered gripper as end-effector. Objects can belong to different classes but have a known geometry. The goal of the project is to use the manipulator to pick the objects in sequence and to position them on a different location according to a specified order. A calibrated 3D camera is used to locate the different objects and to detect their position in the stand.
 
+![gif](assets/gif_video/robot.gif)
+
 ## Project structure
 + **Motion planner ![C++](https://img.shields.io/badge/c++-%2300599C.svg?style=for-the-badge&logo=c%2B%2B&logoColor=white)**
   - contains the catkin project for the motion planner and the task manager
