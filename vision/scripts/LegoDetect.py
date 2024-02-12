@@ -4,62 +4,60 @@
 @brief Defines the class Lego and LegoDetect.
 @date 2024-01-28
 """
-# ---------------------- IMPORT ----------------------
+# ------------------------ IMPORT ------------------------
+
+import os
 from pathlib import Path
 import sys
-import os
-#import torch
-from matplotlib import pyplot as plt
-import numpy as np
+
 import cv2 as cv
+import numpy as np
+from matplotlib import pyplot as plt
 from IPython.display import display
 from PIL import Image
-from RegionOfInterest import RegionOfInterest
-from ultralytics import YOLO
-from PIL import Image
 import ultralytics
+from ultralytics import YOLO
+
 
 ultralytics.checks()
 
-# ---------------------- GLOBAL CONSTANTS ----------------------
+# ------------------------ GLOBAL CONSTANTS ------------------------
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]
 if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))  # add ROOT to PATH
-ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
+ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # add relative PATH
 VISION_PATH = os.path.abspath(os.path.join(ROOT, ".."))
 WEIGHTS_PATH = os.path.join(VISION_PATH, "weights/best.pt")
 IMG_ROI = os.path.abspath(os.path.join(ROOT, "log/img_ROI.png"))
 MODEL = YOLO('../weights/best.pt')
-CONFIDENCE = 0.7
+CONFIDENCE = 0.4
 
 
-LEGO_NAMES = [  'X1-Y1-Z2',
+LEGO_CLASSES = [  'X1-Y1-Z2',
                 'X1-Y2-Z2',
                 'X1-Y3-Z2',
                 'X1-Y4-Z2'  ]
 
-# ---------------------- CLASS ----------------------
+# ------------------------ CLASS -------------------------
 
 class LegoDetect:
-    """
-    @brief This class use custom trained weights and detect lego blocks with YOLOv8
-    """
+
+    #This class detects Lego using Yolov8
+
 
     def __init__(self, img_path):
-        """ @brief Class constructor
-            @param img_path (String): path of input image
-        """
+
+        #class constructor
+
 
         MODEL.conf = CONFIDENCE
         MODEL.multi_label = False
 
-        # MODEL.iou = 0.5
-
         self.block_list = []
         self.detect(img_path)
 
-        # Let user choose detect method
+        # User choose to stop and read, and go or to detect again
         choice = '0'
         while True:
             while (choice != '1' and choice != '2' and choice != ''):
@@ -72,34 +70,30 @@ class LegoDetect:
             if choice == '':
                 break
 
-            # Detect again using original image
+            # Detect again with same image
             if choice == '1':
                 print('Detecting again...')
                 self.detect(img_path)
                 choice = '0'
 
-    def detect_ROI(self, img_path):
-        """ @brief Detect using Region Of Interest
-            @param img_path (String): path of input image
-        """
 
-        print('Draw RegionOfInterest')
-        roi = RegionOfInterest(img_path, IMG_ROI)
-        roi.run_auto()
-        print('Detecting RegionOfInterest...')
-        self.detect(IMG_ROI)
+
+
+
+
+
+
+
+
 
     def detect(self, img_path):
-        """ @brief This function pass the image path to the model and calculate bounding boxes for each object
-            @param img_path (String): path of input image
-        """
+
+        #This function detects Lego and store it to the variable
+
         self.block_list.clear()
 
         # Detection model
         self.results = MODEL(img_path)
-        #print(self.results)
-        #self.results.show
-
 
 
         img = Image.open(img_path)
@@ -107,7 +101,7 @@ class LegoDetect:
         print('img size:', img.width, 'x', img.height)
 
         # Bounding boxes
-        #bboxes = self.results[0].boxes #.pandas().xyxy[0].to_dict(orient="records")
+
         for r in self.results:
 
 
@@ -137,8 +131,7 @@ class LegoDetect:
 
 
     def show(self):
-        """ @brief This function show infos of detected legos
-        """
+
         for index, lego in enumerate(self.block_list, start=1):
             print(index)
             lego.show()
@@ -146,23 +139,14 @@ class LegoDetect:
 # ---------------------- CLASS ----------------------
 
 class Lego:
-    """
-    @brief This class represents info of detected lego
-    """
+
 
     def __init__(self, name, conf, x1, y1, x2, y2, img_source_path):
-        """ @brief Class constructor
-            @param name (String): lego name
-            @param conf (float): confidence
-            @param x1 (float): xmin of bounding box
-            @param y1 (float): ymin of bounding box
-            @param x2 (float): xmax of bounding box
-            @param y2 (float): ymax of bounding box
-            @param img_source_path (String): path to image
-        """
 
-        self.name = LEGO_NAMES[name]
-        self.class_id = name
+
+
+        self.name = LEGO_CLASSES[name]
+        self.class_id = name+1
         self.confidence = conf
         self.xmin = x1
         self.ymin = y1
@@ -171,40 +155,38 @@ class Lego:
         self.img_source_path = img_source_path
         self.img_source = Image.open(self.img_source_path)
         self.center_point = (int((x1+x2)/2), int((y1+y2)/2))
-        self.center_point_uv = (self.img_source.width - self.center_point[0], self.center_point[1])
         self.point_cloud = ()
         self.point_world = ()
 
 
-    def show(self):
-        """ @brief Show lego info
-        """
 
+    def show(self):
+
+        # Crop the image to the bounding box of the detected object
         self.img = self.img_source.crop((self.xmin, self.ymin, self.xmax, self.ymax))
 
-        # Resize detected obj
-        # Not neccessary. Useful when the obj is too small to see
+        # Resize detected object
+        # This step is not necessary. It is useful when the object is too small to see clearly.
         aspect_ratio = self.img.size[1] / self.img.size[0]
-        new_width = 70  # resize width (pixel) for detected object to show
+        new_width = 70
         new_size = (new_width, int(new_width * aspect_ratio))
-        #elf.img = self.img.resize(new_size, Image.LANCZOS)
 
-        # Lego details
+        # Print Lego class
         display(self.img)
         print('class =', self.name)
         print('id =', self.class_id)
         print('confidence =', '%.2f' %self.confidence)
         print('center_point =', self.center_point)
-        print('center_point_uv =', self.center_point_uv)
         print('--> point cloud =', self.point_cloud)
         print('--> point world =', self.point_world)
         print()
 
 
-# ---------------------- MAIN ----------------------
-# To use in command:
-# python3 LegoDetect.py /path/to/img...
+
+# ------------------------ MAIN -----------------------
+# To use this file in command line type:
+# python3 LegoDetect.py /path/to/imageName
+
 
 if __name__ == '__main__':
     legoDetect = LegoDetect(img_origin_path=sys.argv[1])
-

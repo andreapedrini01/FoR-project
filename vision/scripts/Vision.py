@@ -111,7 +111,7 @@ class Vision:
             pos_msg.class_id = block.class_id
             pos_msg.pitch = 0
             pos_msg.roll = 0
-            pos_msg.yaw = 1.57
+            pos_msg.yaw = 0
             pos_msg.x = block.point_world[0, 0]
             pos_msg.y = block.point_world[0, 1]
             pos_msg.z = block.point_world[0, 2]
@@ -138,6 +138,7 @@ class Vision:
             self.pos_pub.publish(pos_msg)
             print('\nPosition published:\n', pos_msg)
         except IndexError:
+            self.ack_pub
             print('\nALL DONE, NO MORE BLOCKS\n')
 
 
