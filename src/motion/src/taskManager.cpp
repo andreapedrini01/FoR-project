@@ -84,34 +84,24 @@ int main(int argc, char ** argv)
     Rate loopRate(RATE);
 
     avviso();
+    motion::pos coord;
 
     while (ros::ok())
     {
-        spinOnce();
-    }
-    return 0;
-}
+        // DEBUG
+        //cout << "Sono nell'ok, msgVision: "<<msgVision<<" ready: "<<ready<<" stop: "<<stop<< endl;
+        /*while (motionPublisher.getNumSubscribers() < 1)
+            loopRate.sleep();
 
+        // DEBUG
+        /*
+        cout << "Ho avuto un numero >= 1 di subscribers " << endl;
+        */
 
-/**
- * Set the block position, rotation and class received from the vision topic
- *
- * @param msg: message received
- */
-void visionCallback(const motion::pos::ConstPtr &msg){
-    // DEBUG
-    //cout << "Msg received on /vision/pos!" << endl;
+        // If vision msg is received and the motion is finished, send the position to the motion
 
-    // Get the data from the message
-    blockPosition << msg->x, msg->y, msg->z;
-    blockRotation << msg->roll, msg->pitch, msg->yaw;
-    blockClassId = msg->class_id;
-
-    msgVision = 1;
-
-    motion::pos coord;
-
-    if (msgVision && ready && !stop){
+        // Manage the new arrive of messages
+        if (msgVision && ready && !stop){
 
             ready = 0; // Prepare and start the movement
 
@@ -122,6 +112,10 @@ void visionCallback(const motion::pos::ConstPtr &msg){
             cout << "Block rotation: " << blockRotation.transpose() << endl;
             cout << "Block class: " << blockClassId << endl;
             cout<<"#####################################"<<endl;
+
+
+            // Get block position from world frame to base frame
+            //blockPosition = worldToBase(blockPosition);
 
             // Set the frame coordinates for the movement topic
             coord.x = blockPosition(0);
@@ -142,9 +136,40 @@ void visionCallback(const motion::pos::ConstPtr &msg){
             // DEBUG: Mostra quando il messaggio viene inviato al nodo di movimento
             cout << "Invio del messaggio al nodo di movimento "<<endl<<"******************"<<endl << coord << "******************" << endl;
 
+            // Send the me<<endlssag
             // Se with the coordinates to the motion block
             motionPublisher.publish(coord);
         }
+
+        spinOnce();
+    }
+    return 0;
+}
+
+
+/**
+ * Set the block position, rotation and class received from the vision topic
+ *
+ * @param msg: message received
+ */
+void visionCallback(const motion::pos::ConstPtr &msg){
+    // DEBUG
+    //cout << "Msg received on /vision/pos!" << endl;
+
+    // Get the data from the message
+    blockPosition << msg->x, msg->y, msg->z;
+    blockRotation << msg->roll, msg->pitch, msg->yaw;
+    blockClassId = msg->class_id;
+
+
+    msgVision = 1;
+
+    // DEBUG: Mostra i dati del messaggio ricevuto
+    //cout << "Posizione del blocco: " << blockPosition.transpose() << endl;
+    //cout << "Rotazione del blocco: " << blockRotation.transpose() << endl;
+    //cout << "ID della classe del blocco: " << blockClassId << endl;
+
+
 }
 
 void avviso(){
@@ -176,7 +201,6 @@ void ack(){
     cout << "Invio dell'ack al nodo di visione" << endl;
 
     visionAck.publish(ack);
-
 }
 
 // If stop = 1 then stop the program have to stop

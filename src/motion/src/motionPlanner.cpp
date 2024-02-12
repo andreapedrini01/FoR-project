@@ -110,7 +110,7 @@ int main(int argc, char **argv)
  * @param xef       desired end-effector position
  * @param phief     desired end-effector orientation
  * @param dt        time step
- * 
+ *
  * @return      VectorXf joint config vector
  */
 void invDiffKinematicControlSimCompleteQuat(Vector3f xef, Vector3f phief, float dt)
@@ -196,12 +196,12 @@ VectorXf invDiffKinematicControlCompleteQuat(VectorXf q, Vector3f xe, Vector3f x
     VectorXf qdot;
     Matrix3f kp = Matrix3f::Identity()*10;
     Matrix3f kq = Matrix3f::Identity()*10;
-    
+
 
     if (J.determinant()<0.001){
       ROS_INFO("Near singular configuration");
     }
-    
+
     Vector3f Mkp, Mko;
     Mkp = vd + kp*(xd-xe);
     Mko = wd + kq*eo;
@@ -245,14 +245,14 @@ Vector3f pd(double t, Vector3f xef, Vector3f xe0)
  *
  * @return     The end-effector orientation
  */
-Quaternionf qd(double tb, Quaternionf qf, Quaternionf q0){  
+Quaternionf qd(double tb, Quaternionf qf, Quaternionf q0){
 
     double t = tb/maxT;
 
     if(t>1)
         return qf;
     else
-        return q0.slerp(t, qf);    
+        return q0.slerp(t, qf);
 }
 
 
@@ -272,7 +272,7 @@ Quaternionf quatMult(Quaternionf q1, Quaternionf q2){
 
 /**
  * @brief CALLBACK function for the position topic
- * 
+ *
  * @param msg message received
  */
 void posCallback(const motion::pos::ConstPtr &msg)
@@ -280,7 +280,7 @@ void posCallback(const motion::pos::ConstPtr &msg)
     pose.position(0) = msg->x-0.5;
     pose.position(1) = -(msg->y)+0.35;
     pose.position(2) = msg->z;
-    
+
     //pose.orientation << msg->yaw, msg->pitch, msg->roll;
 
     pose.orientation(2) = msg->roll;
@@ -306,9 +306,9 @@ void sendJointState(VectorXf q)
     {
         jointState_msg_robot.data[i] = q(i);
     }
-    
+
     if (grasp)
-    {          
+    {
         jointState_msg_robot.data[6] = -0.23;
         jointState_msg_robot.data[7] = -0.23;
     }
@@ -317,7 +317,7 @@ void sendJointState(VectorXf q)
         jointState_msg_robot.data[6] = 1.0;
         jointState_msg_robot.data[7] = 1.0;
     }
-    
+
 
     pub_des_jstate.publish(jointState_msg_robot);
     loop_rate.sleep();
@@ -331,19 +331,19 @@ void move()
     ros::Rate loop_rate(LOOP_RATE);
     float dt = 0.01; // time step
     Vector3f target;
-    
+
     // go above the desired position
     target << pose.position(0), pose.position(1), 0.76;
     invDiffKinematicControlSimCompleteQuat(target, pose.orientation, dt);
-    
+
     // go to the desired position
     target << pose.position(0), pose.position(1), pose.position(2)+0.03;
     invDiffKinematicControlSimCompleteQuat(pose.position, pose.orientation, dt);
-    
+
     // grasp
     grasp = 1;
     sendJointState(TH0);
-    
+
 
     for (int i = 0; i < 20; i++)
     {
@@ -364,22 +364,22 @@ void move()
             break;
 
         case 1:
-            target << (0.25+0.5*class1), -0.26, 0.82;
+            target << (0.25+0.1*class1), -0.26, 0.82;
             class1++;
             break;
 
         case 2:
-            target << (0.35+0.5*class2), -0.26, 0.82;
+            target << (0.35+0.1*class2), -0.26, 0.82;
             class2++;
             break;
 
         case 3:
-            target << (0.25+0.5*class3), 0.0, 0.82;
+            target << (0.25+0.1*class3), 0.0, 0.82;
             class3++;
             break;
 
         case 4:
-            target << (0.35+0.5*class4), 0.0, 0.82;
+            target << (0.35+0.1*class4), 0.0, 0.82;
             class4++;
             break;
 
@@ -388,11 +388,11 @@ void move()
         }
     pose.orientation << 0, 0, 0;
     invDiffKinematicControlSimCompleteQuat(target, pose.orientation, dt);
-    
+
     // ungrasp
     grasp = 0;
     sendJointState(TH0);
-    
+
     for (int i = 0; i < 20; i++)
     {
         loop_rate.sleep();
@@ -401,7 +401,7 @@ void move()
     // lift a little bit
     target(2) = 0.76;
     invDiffKinematicControlSimCompleteQuat(target, pose.orientation, dt);
-    
+
     // go to the starting position
     startingPosition();
 
@@ -434,7 +434,6 @@ void ack()
     // wait a little bit before sending the ack to the taskManager
     for (int i = 0; i < 40; i++)
     {
-
         loop_rate.sleep();
     }
     ack_pos.publish(ack);

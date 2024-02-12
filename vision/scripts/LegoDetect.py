@@ -78,6 +78,14 @@ class LegoDetect:
 
 
 
+
+
+
+
+
+
+
+
     def detect(self, img_path):
 
         #This function detects Lego and store it to the variable
@@ -138,7 +146,7 @@ class Lego:
 
 
         self.name = LEGO_CLASSES[name]
-        self.class_id = name
+        self.class_id = name+1
         self.confidence = conf
         self.xmin = x1
         self.ymin = y1
