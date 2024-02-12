@@ -176,6 +176,7 @@ void ack(){
     cout << "Invio dell'ack al nodo di visione" << endl;
 
     visionAck.publish(ack);
+
 }
 
 // If stop = 1 then stop the program have to stop
