@@ -21,37 +21,57 @@
       <pose>0.0 0.0 0.0 0 0 0</pose>
     </include>
 
-    <include>
-      <name>X1-Y4-Z2A</name>
-      <uri>model://X1-Y4-Z2</uri>
-      <pose> 0.1 0.2 0.925   0 0 0</pose> <!-- 0.85 + 0.25/2=0.975-->
+
+  <!-- -------------------LEGO 1X1---------------------------CIANO-->
+  
+  
+  <include>
+      <name>lego1B</name>
+      <uri>model://my_brick</uri>
+      <pose> 0.04 0.30 0.925   0 0 1.57</pose>
     </include>
 
+    
+
+
+
+  <!-- ------------------LEGO 2X1-----------------------------ROSSO-->
 
     <include>
-      <name>X1-Y2-Z2A</name>
+      <name>lego2B</name>
       <uri>model://X1-Y2-Z2</uri>
-      <pose> 0.2 0.3 0.925   0 0 0</pose> <!-- 0.85 + 0.25/2=0.975-->
+      <pose> 0.09 0.40 0.925   0 0 1.57</pose>
     </include>
 
+
+
+  <!-- ------------------LEGO 3X1-----------------------------VIOLA-->
+
+
     <include>
-      <name>X1-Y3-Z2A</name>
+      <name>lego3B</name>
       <uri>model://X1-Y3-Z2</uri>
-      <pose> 0.2 0.8 0.925   0 0 0</pose> <!-- 0.85 + 0.25/2=0.975-->
+      <pose> 0.18 0.55 0.925   0 0 1.57</pose>
     </include>
+    
+    
+
+
+
+  <!-- ------------------LEGO 4X1-----------------------------VERDE-->
 
     <include>
-      <name>X1-Y1-Z2A</name>
-      <uri>model://X1-Y1-Z2</uri>
-      <pose> 0.1 0.5 0.925   0 0 0</pose> <!-- 0.85 + 0.25/2=0.975-->
+      <name>lego4A</name>
+      <uri>model://X1-Y4-Z2</uri>
+      <pose> 0.3 0.70 0.925   0 0 1.57</pose>
     </include>
-
+    
 
     <gui>
     <camera name="gzclient_camera">
       <pose>1. 3.2 2.2 0. 0.4 -1.75</pose>
     </camera>
     </gui>
+
   </world>
 </sdf>
-
