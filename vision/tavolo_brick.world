@@ -27,7 +27,7 @@
   
   <include>
       <name>lego1B</name>
-      <uri>model://my_brick</uri>
+      <uri>model://X1-Y1-Z2</uri>
       <pose> 0.04 0.30 0.925   0 0 1.57</pose>
     </include>
 
