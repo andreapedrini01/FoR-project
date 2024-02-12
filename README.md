@@ -70,6 +70,10 @@ gedit ur5_generic.py
 ```BASH
 self.world_name = "tavolo_brick.world"
 ```
+8) write in terminal
+```BASH
+pip install ultralytics
+```
 
 ## How to run the project
 1) Run the Ur5_generic.py file
