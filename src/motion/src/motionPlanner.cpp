@@ -185,12 +185,12 @@ void invDiffKinematicControlSimCompleteQuat(Vector3f xef, Vector3f phief, float 
  *
  * @return     The joint velocities
  */
-VectorXf invDiffKinematicControlCompleteQuat(VectorXf q, Vector3f xe, Vector3f xd, Vector3f vd, Quaternionf qe, Quaternionf qdo, Vector3f wd)
+VectorXf invDiffKinematicControlCompleteQuat(VectorXf q, Vector3f xe, Vector3f xd, Vector3f vd, Quaternionf qe, Quaternionf qd, Vector3f wd)
 {
     MatrixXf J;
     J = jacobian(q);
 
-    Quaternionf qeo = quatMult(qdo, (qe.conjugate()));
+    Quaternionf qeo = quatMult(qd, (qe.conjugate()));
     Vector3f eo = qeo.vec();
 
     VectorXf qdot;
@@ -240,10 +240,10 @@ Vector3f pd(double t, Vector3f xef, Vector3f xe0)
  * @brief      This function is used to calculate trajectory for the end-effector orientation
  *
  * @param  t     The current time
- * @param  qf    The desired end-effector position
- * @param  q0    The start end-effector position
+ * @param  xef    The desired end-effector position
+ * @param  xe0    The start end-effector position
  *
- * @return     The end-effector orientation
+ * @return     The end-effector position
  */
 Quaternionf qd(double tb, Quaternionf qf, Quaternionf q0){  
 
@@ -277,11 +277,9 @@ Quaternionf quatMult(Quaternionf q1, Quaternionf q2){
  */
 void posCallback(const motion::pos::ConstPtr &msg)
 {
-    pose.position(0) = msg->x-0.5;
+    pose.position(0) = (msg->x-0.5) + 0.015*(msg->class_id-1); // the correction factor is used to correct the vision error
     pose.position(1) = -(msg->y)+0.35;
     pose.position(2) = msg->z;
-    
-    //pose.orientation << msg->yaw, msg->pitch, msg->roll;
 
     pose.orientation(2) = msg->roll;
     pose.orientation(1) = msg->pitch;
@@ -309,8 +307,8 @@ void sendJointState(VectorXf q)
     
     if (grasp)
     {          
-        jointState_msg_robot.data[6] = -0.23;
-        jointState_msg_robot.data[7] = -0.23;
+        jointState_msg_robot.data[6] = -0.20;
+        jointState_msg_robot.data[7] = -0.20;
     }
     else
     {
@@ -337,7 +335,7 @@ void move()
     invDiffKinematicControlSimCompleteQuat(target, pose.orientation, dt);
     
     // go to the desired position
-    target << pose.position(0), pose.position(1), pose.position(2)+0.03;
+    target << pose.position(0), pose.position(1), pose.position(2);
     invDiffKinematicControlSimCompleteQuat(pose.position, pose.orientation, dt);
     
     // grasp
@@ -364,22 +362,22 @@ void move()
             break;
 
         case 1:
-            target << (0.25+0.5*class1), -0.26, 0.82;
+            target << (0.25+0.05*class1), -0.26, 0.82;
             class1++;
             break;
 
         case 2:
-            target << (0.35+0.5*class2), -0.26, 0.82;
+            target << (0.35+0.05*class2), -0.26, 0.82;
             class2++;
             break;
 
         case 3:
-            target << (0.25+0.5*class3), 0.0, 0.82;
+            target << (0.25+0.05*class3), 0.0, 0.82;
             class3++;
             break;
 
         case 4:
-            target << (0.35+0.5*class4), 0.0, 0.82;
+            target << (0.35+0.05*class4), 0.0, 0.82;
             class4++;
             break;
 
