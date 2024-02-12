@@ -37,19 +37,19 @@ A number of blocks are stored without any specific order on a stand located with
 ## Installation
 The project has been developed and tested on Ubuntu 20.04 with ROS Noetic, also we used the [locosim](https://github.com/mfocchi/locosim) repository for the ur5 simulation. The installation of the project is the following:
 1) Clone the [locosim](https://github.com/mfocchi/locosim) repository and follow the instructions to install it
-2) Clone this repository in the /ros_ws folder:
+2) Clone this repository in the /ros_ws/src folder:
 ```BASH
-cd ~/ros_ws
+cd ~/ros_ws/src
 git clone https://github.com/andreapedrini01/FoR-project/
 ```
 3) Copy the .world file of the repository in the worlds folder
 ```BASH
-cd ~/ros_ws/FoR-project/
-cp <wordlName> ~/ros_ws/src/locosim/ros_impedance_controllers/worlds
+cd ~/ros_ws/src/FoR-project/
+cp tavolo_obstacles.world ~/ros_ws/src/locosim/ros_impedance_controllers/worlds
 ```
 4) Copy the models in the models folder
 ```BASH
-cd ~/ros_ws/FoR-project/
+cd ~/ros_ws/src/FoR-project/
 cp -r X1-Y1-Z2 X1-Y2-Z2 X1-Y3-Z2 X1-Y4-Z2 ~/ros_ws/src/locosim/ros_impedance_controllers/worlds/models
 ```
 
@@ -72,7 +72,7 @@ rosrun motion motionPlanner
 ```
 4) Open an other terminal and run the vision node in the correct folder:
 ```BASH
-cd ~/ros_ws/FoR-project/vision/scripts
+cd ~/ros_ws/src/FoR-project/vision/scripts
 python3 Vision.py
 ```
 
