@@ -34,7 +34,7 @@ A number of blocks are stored without any specific order on a stand located with
   - `models` contains the block's models
   - `scripts` has the scripts for the vision
   - `weights` has the weights of neural layers
-  - `tavolo_obstacles.world` is the .world template
+  - `tavolo_brick.world` is the .world template
 
 ## Installation
 The project has been developed and tested on Ubuntu 20.04 with ROS Noetic, also we used the [locosim](https://github.com/mfocchi/locosim) repository for the ur5 simulation. The installation of the project is the following:
